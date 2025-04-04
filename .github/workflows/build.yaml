@@ -28,13 +28,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y fontforge python3-fontforge
           
+      - name: Set FontForge Python path
+        run: |
+          echo "PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH" >> $GITHUB_ENV
+          echo "Debug - FontForge module path:"
+          find /usr -name fontforge.py 2>/dev/null || echo "fontforge.py not found"
+          find /usr/lib -name "*fontforge*" 2>/dev/null || echo "No fontforge modules found in /usr/lib"
+          echo "Debug - Python environment:"
+          python --version
+          python -c "import sys; print('Python path:', sys.path)"
+          
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install msgspec jinja2
 
       - name: Run build script
-        run: PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH python main.py
+        run: python main.py
 
       - name: Set version
         id: set_version
