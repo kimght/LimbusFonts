@@ -19,24 +19,17 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3.10 python3.10-dev python3-pip
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+          sudo update-alternatives --set python /usr/bin/python3.10
+          python --version
+          python -m pip install --upgrade pip
 
       - name: Install FontForge
         run: |
-          sudo apt-get update
           sudo apt-get install -y fontforge python3-fontforge
-          
-      - name: Set FontForge Python path
-        run: |
-          echo "PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH" >> $GITHUB_ENV
-          echo "Debug - FontForge module path:"
-          find /usr -name fontforge.py 2>/dev/null || echo "fontforge.py not found"
-          find /usr/lib -name "*fontforge*" 2>/dev/null || echo "No fontforge modules found in /usr/lib"
-          echo "Debug - Python environment:"
-          python --version
-          python -c "import sys; print('Python path:', sys.path)"
           
       - name: Install Python dependencies
         run: |
@@ -44,7 +37,11 @@ jobs:
           pip install msgspec jinja2
 
       - name: Run build script
-        run: python main.py
+        run: |
+          export PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH
+          which python
+          python -c "import sys; print('Using Python path:', sys.path)"
+          python main.py
 
       - name: Set version
         id: set_version
