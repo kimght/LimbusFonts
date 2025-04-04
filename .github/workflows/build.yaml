@@ -27,12 +27,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y fontforge python3-fontforge
-
-      - name: Fix FontForge Python bindings
-        run: |
-          SITE_PACKAGES=$(python -c "import site; print(site.getsitepackages()[0])")
-          sudo ln -s /usr/lib/python3/dist-packages/fontforge.so $SITE_PACKAGES/
-          sudo ln -s /usr/lib/python3/dist-packages/psMat.so $SITE_PACKAGES/
           
       - name: Install Python dependencies
         run: |
@@ -40,7 +34,7 @@ jobs:
           pip install msgspec jinja2
 
       - name: Run build script
-        run: python main.py
+        run: fontforge -script main.py
 
       - name: Set version
         id: set_version
