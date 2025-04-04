@@ -34,7 +34,7 @@ jobs:
           pip install msgspec jinja2
 
       - name: Run build script
-        run: fontforge -script main.py
+        run: PYTHONPATH=/usr/lib/python3/dist-packages:$PYTHONPATH python main.py
 
       - name: Set version
         id: set_version
