@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ font_name }} Preview</title>
+    <style>
+        @font-face {
+            font-family: "{{ font_name }}";
+            src: url("data:font/ttf;base64,{{ font_data }}") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        
+        h1 {
+            color: #333;
+        }
+        
+        .preview-container {
+            margin-top: 20px;
+        }
+        
+        .font-preview {
+            font-family: "{{ font_name }}", Arial, sans-serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .font-name {
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ font_name }} Preview</h1>
+    
+    <div class="preview-container">
+        {% for font_name, text in preview_text.items() %}
+            <div class="font-preview">
+                <div class="font-name">{{ font_name }}</div>
+                <div>{{ text }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+default_font = "pretendard"
+merged_font_name = "LimbusCustomFont"
+
+[fonts.mikodacs]
+name = "Micodacs"
+filename = "mikodacs.ttf"
+symbols = "symbols.txt"
+
+[fonts.pretendard]
+name = "Pretendard"
+filename = "pretendard.ttf"
+symbols = "symbols.txt"
+
+[fonts.bebas]
+name = "Bebas Neue"
+filename = "bebasneuecyrillic.ttf"
+symbols = "symbols.txt"
