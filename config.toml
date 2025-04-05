@@ -15,3 +15,8 @@ symbols = "symbols.txt"
 name = "Bebas Neue"
 filename = "bebasneuecyrillic.ttf"
 symbols = "symbols.txt"
+
+[fonts.caveat]
+name = "Caveat"
+filename = "caveat_fix.ttf"
+symbols = "symbols.txt"
