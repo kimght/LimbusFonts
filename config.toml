@@ -11,7 +11,7 @@ private_range = [0xE000, 0xF8FF]
 
 # Fonts to merge
 [fonts.mikodacs]
-# Name of the font as it will be used in the font
+# Name of the font (does not really matter)
 name = "Micodacs"
 # Path to the font file (relative to ./fonts)
 filename = "mikodacs.ttf"
