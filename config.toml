@@ -1,9 +1,21 @@
+# Characters for this font will have the same codes as in original text
+# 'a' -> 'a', 'ё' -> 'ё' etc.
 default_font = "pretendard"
 merged_font_name = "LimbusCustomFont"
 
+# Where to put extra symbols:
+# 0xE000-0xF8FF: 6,400 symbols
+# 0xF0000-0xFFFFD: 65,534 symbols
+# 0x100000-U+10FFFD: 65,534 symbols
+private_range = [0xE000, 0xF8FF]
+
+# Fonts to merge
 [fonts.mikodacs]
+# Name of the font as it will be used in the font
 name = "Micodacs"
+# Path to the font file (relative to ./fonts)
 filename = "mikodacs.ttf"
+# Path to the file with symbols that you want to use with this font (relative to ./fonts)
 symbols = "symbols.txt"
 
 [fonts.pretendard]

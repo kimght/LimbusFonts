@@ -18,6 +18,7 @@ class Config(msgspec.Struct):
     merged_font_name: str
     default_font: str
     fonts: dict[str, Font]
+    private_range: tuple[int, int]
 
 
 class ReplacementMap(msgspec.Struct):
@@ -28,7 +29,7 @@ class ReplacementMap(msgspec.Struct):
 def make_replacement_map(
     fonts: dict[str, Font],
     default_font: str | None = None,
-    private_range: tuple[int, int] = (0xE000, 0xF8FF)
+    private_range: tuple[int, int] = (0xE000, 0xF8FF),
 ) -> ReplacementMap:
     replacements = {}
 
@@ -50,11 +51,16 @@ def make_replacement_map(
             current_symbol += 1
             if current_symbol >= private_range[1]:
                 raise ValueError("Private range is full, use different range")
-            
+
     return ReplacementMap(replacements=replacements)
 
 
-def merge_fonts(fonts: dict[str, Font], replacement_map: ReplacementMap, output_path: Path, merged_font_name: str) -> Path:
+def merge_fonts(
+    fonts: dict[str, Font],
+    replacement_map: ReplacementMap,
+    output_path: Path,
+    merged_font_name: str,
+) -> Path:
     merged_font = fontforge.font()
     merged_font.encoding = "UnicodeFull"
     merged_font.fontname = merged_font_name
@@ -78,7 +84,9 @@ def merge_fonts(fonts: dict[str, Font], replacement_map: ReplacementMap, output_
             source_font.copy()
             merged_font.selection.select(replacement_codepoint)
             merged_font.paste()
-            merged_font[replacement_codepoint].glyphname = f"uni{replacement_codepoint:04X}_from_{font_name}"
+            merged_font[
+                replacement_codepoint
+            ].glyphname = f"uni{replacement_codepoint:04X}_from_{font_name}"
 
         source_font.close()
 
@@ -93,23 +101,30 @@ def main():
     with open("config.toml", "rb") as f:
         data = msgspec.toml.decode(f.read(), type=Config)
 
-    replacement_map = make_replacement_map(data.fonts, data.default_font)
+    replacement_map = make_replacement_map(
+        data.fonts, data.default_font, data.private_range
+    )
     print("Replacement Map created.")
 
     output_dir = Path("./dist")
     output_dir.mkdir(parents=True, exist_ok=True)
-    merge_fonts(data.fonts, replacement_map, output_dir / "merged_font.ttf", data.merged_font_name)
+    merge_fonts(
+        data.fonts,
+        replacement_map,
+        output_dir / "merged_font.ttf",
+        data.merged_font_name,
+    )
 
     with open(output_dir / "replacement_map.json", "w") as f:
         json.dump(replacement_map.replacements, f, indent=2)
-    
+
     font_path = output_dir / "merged_font.ttf"
     md5_hash = hashlib.md5()
-    
+
     with open(font_path, "rb") as font_file:
         font_content = font_file.read()
         md5_hash.update(font_content)
-    
+
     checksum_path = output_dir / "checksum.txt"
     with open(checksum_path, "w") as checksum_file:
         checksum_file.write(md5_hash.hexdigest())
@@ -125,7 +140,7 @@ def main():
         preview_text={
             font_name: "".join(font_replacements.values())
             for font_name, font_replacements in replacement_map.replacements.items()
-        }
+        },
     )
 
     with open(output_dir / "preview.html", "w") as f:
