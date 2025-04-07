@@ -6,6 +6,13 @@
     <title>{{ font_name }} Preview</title>
     <style>
         @font-face {
+            font-family: "UnicodeBMPFallback";
+            src: url("data:font/ttf;base64,{{ fallback_font }}") format("truetype");
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        @font-face {
             font-family: "{{ font_name }}";
             src: url("data:font/ttf;base64,{{ font_data }}") format("truetype");
             font-weight: normal;
@@ -27,7 +34,7 @@
         }
         
         .font-preview {
-            font-family: "{{ font_name }}", Arial, sans-serif;
+            font-family: "{{ font_name }}", "UnicodeBMPFallback";
             font-size: 24px;
             margin-bottom: 20px;
             padding: 15px;
@@ -37,6 +44,7 @@
         }
         
         .font-name {
+            font-family: Arial, sans-serif;
             font-weight: bold;
             color: #555;
             margin-bottom: 5px;

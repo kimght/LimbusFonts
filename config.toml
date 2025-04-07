@@ -30,5 +30,5 @@ symbols = "symbols.txt"
 
 [fonts.caveat]
 name = "Caveat"
-filename = "caveat_fix.ttf"
+filename = "caveat.ttf"
 symbols = "symbols.txt"

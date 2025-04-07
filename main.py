@@ -76,6 +76,10 @@ def merge_fonts(
         print(f"Processing font: {font_name} from {source_font_path}")
         source_font = fontforge.open(str(source_font_path))
 
+        for glyph_name in source_font:
+            glyph = source_font[glyph_name]
+            glyph.unlinkRef()
+
         for original_symbol, replacement_char in symbol_map.items():
             original_codepoint = ord(original_symbol)
             replacement_codepoint = ord(replacement_char)
@@ -134,9 +138,13 @@ def main():
     with open("preview.jinja", "r") as f:
         template = jinja2.Template(f.read())
 
+    fallback_font_path = Path("./fallback_font.ttf")
+    fallback_font_content = fallback_font_path.read_bytes()
+    
     preview = template.render(
         font_name=data.merged_font_name,
         font_data=base64.b64encode(font_content).decode("utf-8"),
+        fallback_font=base64.b64encode(fallback_font_content).decode("utf-8"),
         preview_text={
             font_name: "".join(font_replacements.values())
             for font_name, font_replacements in replacement_map.replacements.items()
