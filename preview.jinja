@@ -58,7 +58,10 @@
         {% for font_name, text in preview_text.items() %}
             <div class="font-preview">
                 <div class="font-name">{{ font_name }}</div>
-                <div>{{ text }}</div>
+
+                {% for line in text %} 
+                    <div>{{ line }}</div>
+                {% endfor %}
             </div>
         {% endfor %}
     </div>

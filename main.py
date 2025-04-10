@@ -39,6 +39,8 @@ def make_replacement_map(
         replacements[font_name] = {}
         symbols_path = Path("fonts") / font.symbols
         content = symbols_path.read_text()
+        content = "".join(line.strip() for line in content.split("\n"))
+
         for symbol in content:
             if symbol in replacements[font_name]:
                 continue
@@ -53,6 +55,10 @@ def make_replacement_map(
                 raise ValueError("Private range is full, use different range")
 
     return ReplacementMap(replacements=replacements)
+
+
+def wrap_lines(content: str, line_length: int = 20) -> list[str]:
+    return [content[i : i + line_length] for i in range(0, len(content), line_length)]
 
 
 def merge_fonts(
@@ -140,15 +146,17 @@ def main():
 
     fallback_font_path = Path("./fallback_font.ttf")
     fallback_font_content = fallback_font_path.read_bytes()
-    
+
+    preview_text = {
+        font_name: wrap_lines("".join(font_replacements.values()), 64)
+        for font_name, font_replacements in replacement_map.replacements.items()
+    }
+
     preview = template.render(
         font_name=data.merged_font_name,
         font_data=base64.b64encode(font_content).decode("utf-8"),
         fallback_font=base64.b64encode(fallback_font_content).decode("utf-8"),
-        preview_text={
-            font_name: "".join(font_replacements.values())
-            for font_name, font_replacements in replacement_map.replacements.items()
-        },
+        preview_text=preview_text,
     )
 
     with open(output_dir / "preview.html", "w") as f:
