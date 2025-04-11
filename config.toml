@@ -14,21 +14,41 @@ private_range = [0xE000, 0xF8FF]
 # Name of the font (does not really matter)
 name = "Micodacs"
 # Path to the font file (relative to ./fonts)
-filename = "mikodacs.ttf"
+filename = "mikodacs.otf"
 # Path to the file with symbols that you want to use with this font (relative to ./fonts)
 symbols = "symbols.txt"
+extra = [
+  0x301,
+]
 
 [fonts.pretendard]
 name = "Pretendard"
 filename = "pretendard.ttf"
 symbols = "symbols.txt"
+extra = [
+  0x301,
+]
 
 [fonts.bebas]
 name = "Bebas Neue"
-filename = "bebasneuecyrillic.ttf"
+filename = "bebasneue_bold.ttf"
 symbols = "symbols.txt"
+extra = [
+  0x301,
+]
 
 [fonts.caveat]
 name = "Caveat"
 filename = "caveat.ttf"
 symbols = "symbols.txt"
+extra = [
+  0x301,
+]
+
+[fonts.excelsior]
+name = "Excelsior Sans"
+filename = "excelsiorsans_regular.ttf"
+symbols = "symbols.txt"
+extra = [
+  0x301,
+]

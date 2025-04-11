@@ -12,6 +12,7 @@ class Font(msgspec.Struct):
     name: str
     filename: str  # path relative to Path("./fonts")
     symbols: str  # path relative to Path("./fonts")
+    extra: list[int] = msgspec.field(default_factory=list)
 
 
 class Config(msgspec.Struct):
@@ -39,7 +40,8 @@ def make_replacement_map(
         replacements[font_name] = {}
         symbols_path = Path("fonts") / font.symbols
         content = symbols_path.read_text()
-        content = "".join(line.strip() for line in content.split("\n"))
+        content = list("".join(line.strip() for line in content.split("\n")))
+        content.extend(chr(codepoint) for codepoint in font.extra)
 
         for symbol in content:
             if symbol in replacements[font_name]:
