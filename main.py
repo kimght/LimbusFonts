@@ -4,6 +4,7 @@ import json
 import hashlib
 import base64
 import jinja2
+import string
 
 from pathlib import Path
 
@@ -15,11 +16,15 @@ class Font(msgspec.Struct):
     extra: list[int] = msgspec.field(default_factory=list)
 
 
+class TargetFont(msgspec.Struct):
+    filename: str
+    source: str
+
+
 class Config(msgspec.Struct):
-    merged_font_name: str
-    default_font: str
-    fonts: dict[str, Font]
     private_range: tuple[int, int]
+    fonts: dict[str, Font]
+    targets: dict[str, TargetFont]
 
 
 class ReplacementMap(msgspec.Struct):
@@ -64,16 +69,13 @@ def wrap_lines(content: str, line_length: int = 20) -> list[str]:
 
 
 def merge_fonts(
+    base_font: Path,
+    output_path: Path,
     fonts: dict[str, Font],
     replacement_map: ReplacementMap,
-    output_path: Path,
-    merged_font_name: str,
 ) -> Path:
-    merged_font = fontforge.font()
+    merged_font = fontforge.open(str(base_font))
     merged_font.encoding = "UnicodeFull"
-    merged_font.fontname = merged_font_name
-    merged_font.familyname = merged_font_name
-    merged_font.fullname = merged_font_name
 
     fonts_dir = Path("fonts")
 
@@ -100,7 +102,7 @@ def merge_fonts(
                 replacement_codepoint
             ].glyphname = f"uni{replacement_codepoint:04X}_from_{font_name}"
 
-        source_font.close()
+        # source_font.close()
 
     print(f"Generating merged font at: {output_path}")
     merged_font.generate(str(output_path))
@@ -114,55 +116,65 @@ def main():
         data = msgspec.toml.decode(f.read(), type=Config)
 
     replacement_map = make_replacement_map(
-        data.fonts, data.default_font, data.private_range
+        data.fonts, private_range=data.private_range
     )
     print("Replacement Map created.")
 
     output_dir = Path("./dist")
     output_dir.mkdir(parents=True, exist_ok=True)
-    merge_fonts(
-        data.fonts,
-        replacement_map,
-        output_dir / "merged_font.ttf",
-        data.merged_font_name,
-    )
+
+    for target_font in data.targets.values():
+        merge_fonts(
+            Path("fonts") / target_font.source,
+            output_dir / target_font.filename,
+            data.fonts,
+            replacement_map,
+        )
 
     with open(output_dir / "replacement_map.json", "w") as f:
         json.dump(replacement_map.replacements, f, indent=2)
 
-    font_path = output_dir / "merged_font.ttf"
-    md5_hash = hashlib.md5()
-
-    with open(font_path, "rb") as font_file:
-        font_content = font_file.read()
-        md5_hash.update(font_content)
-
-    checksum_path = output_dir / "checksum.txt"
-    with open(checksum_path, "w") as checksum_file:
-        checksum_file.write(md5_hash.hexdigest())
-
-    print(f"MD5 checksum saved to: {checksum_path}")
+    fallback_font_path = Path("./fallback_font.ttf")
+    fallback_font_content = fallback_font_path.read_bytes()
+    checksum = {}
 
     with open("preview.jinja", "r") as f:
         template = jinja2.Template(f.read())
 
-    fallback_font_path = Path("./fallback_font.ttf")
-    fallback_font_content = fallback_font_path.read_bytes()
+    for target_name, target_font in data.targets.items():
+        font_path = output_dir / target_font.filename
+        md5_hash = hashlib.md5()
 
-    preview_text = {
-        font_name: wrap_lines("".join(font_replacements.values()), 64)
-        for font_name, font_replacements in replacement_map.replacements.items()
-    }
+        with font_path.open("rb") as font_file:
+            font_content = font_file.read()
+            md5_hash.update(font_content)
 
-    preview = template.render(
-        font_name=data.merged_font_name,
-        font_data=base64.b64encode(font_content).decode("utf-8"),
-        fallback_font=base64.b64encode(fallback_font_content).decode("utf-8"),
-        preview_text=preview_text,
-    )
+        checksum[target_name] = md5_hash.hexdigest()
 
-    with open(output_dir / "preview.html", "w") as f:
-        f.write(preview)
+        preview_text = {
+            font_name: wrap_lines("".join(font_replacements.values()), 64)
+            for font_name, font_replacements in replacement_map.replacements.items()
+        }
+
+        preview_text["base"] = wrap_lines(
+            string.ascii_letters + string.digits + string.punctuation, 64
+        )
+
+        preview = template.render(
+            font_name=target_name,
+            font_data=base64.b64encode(font_content).decode("utf-8"),
+            fallback_font=base64.b64encode(fallback_font_content).decode("utf-8"),
+            preview_text=preview_text,
+        )
+
+        with open(output_dir / f"preview_{target_name}.html", "w") as f:
+            f.write(preview)
+
+    checksum_path = output_dir / "checksum.json"
+    with open(checksum_path, "w") as checksum_file:
+        json.dump(checksum, checksum_file, indent=2)
+
+    print(f"MD5 checksums saved to: {checksum_path}")
 
     print("Done.")
 

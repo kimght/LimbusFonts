@@ -60,9 +60,7 @@ jobs:
           body_path: CHANGELOG.md
           draft: true
           files: |
-            dist/checksum.txt
-            dist/merged_font.ttf
-            dist/preview.html
-            dist/replacement_map.json
+            dist/*
+            
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

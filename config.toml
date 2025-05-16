@@ -1,8 +1,3 @@
-# Characters for this font will have the same codes as in original text
-# 'a' -> 'a', 'ё' -> 'ё' etc.
-default_font = "pretendard"
-merged_font_name = "LimbusCustomFont"
-
 # Where to put extra symbols:
 # 0xE000-0xF8FF: 6,400 symbols
 # 0xF0000-0xFFFFD: 65,534 symbols
@@ -14,7 +9,7 @@ private_range = [0xE000, 0xF8FF]
 # Name of the font (does not really matter)
 name = "Micodacs"
 # Path to the font file (relative to ./fonts)
-filename = "mikodacs.otf"
+filename = "mikodacs.ttf"
 # Path to the file with symbols that you want to use with this font (relative to ./fonts)
 symbols = "symbols.txt"
 extra = [
@@ -47,8 +42,16 @@ extra = [
 
 [fonts.excelsior]
 name = "Excelsior Sans"
-filename = "excelsiorsans_regular.ttf"
+filename = "excelsiorsans.ttf"
 symbols = "symbols.txt"
 extra = [
   0x301,
 ]
+
+[targets.title]
+filename = "Title.ttf"
+source = "mikodacs.ttf"
+
+[targets.context]
+filename = "Context.ttf"
+source = "pretendard.ttf"
